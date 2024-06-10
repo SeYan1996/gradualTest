@@ -1,0 +1,220 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ChannelMember {
+  userId: ID!
+  joinedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type ChannelMemberInfo {
+  _id: String!
+
+  """userName"""
+  userName: String
+
+  """avatar"""
+  avatar: String
+}
+
+type Channel {
+  _id: ID!
+  createTime: DateTime!
+  isDeleted: Boolean!
+
+  """频道名称"""
+  name: String
+  lastMsgId: ID!
+  members: [ChannelMember!]!
+}
+
+type UserChannelInfo {
+  """频道ID"""
+  channelId: String!
+
+  """最后一次读取的消息ID"""
+  lastReadMsgId: String
+  mentioned: Boolean!
+  joinedAt: DateTime
+  userChannelDetail: Channel
+}
+
+type User {
+  _id: ID!
+  createTime: DateTime!
+  isDeleted: Boolean!
+
+  """userName"""
+  userName: String
+
+  """avatar"""
+  avatar: String
+  channelMap: [UserChannelInfo!]
+}
+
+type MsgContent {
+  """文本内容"""
+  text: String
+
+  """图片链接"""
+  imgUrl: String
+
+  """文件链接"""
+  file: String
+}
+
+type Message {
+  _id: ID!
+  createTime: DateTime!
+  isDeleted: Boolean!
+  channelId: ID!
+
+  """发送者Id"""
+  from: ID!
+
+  """提及用户Id列表"""
+  mentionUserIdList: [ID!]
+
+  """引用的消息Id """
+  replyMsgId: ID
+  type: MsgType!
+  content: MsgContent!
+}
+
+enum MsgType {
+  Text
+  Img
+  File
+}
+
+type Query {
+  users: [User!]!
+  user(id: String!): User!
+  userChannels(
+    """UserId"""
+    userId: String!
+  ): [UserChannelInfo!]!
+  channels(keyword: String!): [Channel!]!
+  countUnreadMsg(countUnreadMsgArgs: CountUnreadMsgArgs!): Float!
+  searchChannelUser(searchChannelUserArgs: SearchChannelUserArgs!): [ChannelMemberInfo!]!
+  channel(id: String!): Channel!
+  fetchMessages(fetchMsgInput: FetchMsgInput!): [Message!]!
+}
+
+input CountUnreadMsgArgs {
+  """UserId"""
+  userId: String!
+
+  """channelId"""
+  channelId: String!
+}
+
+input SearchChannelUserArgs {
+  """keyword"""
+  keyword: String
+
+  """channelId"""
+  channelId: String!
+}
+
+input FetchMsgInput {
+  """开始查询的消息Id 为空时查询最新消息"""
+  startMsgId: String
+  pageSize: Int! = 50
+
+  """channelId"""
+  channelId: String!
+
+  """userId"""
+  userId: String!
+}
+
+type Mutation {
+  userLogin(userLoginInput: UserLoginInput!): User!
+  joinChannel(
+    """UserId"""
+    userId: String!
+
+    """channelId"""
+    channelId: String!
+  ): UserChannelInfo!
+  quitChannel(
+    """UserId"""
+    userId: String!
+
+    """channelId"""
+    channelId: String!
+  ): Boolean!
+  updateChannelLastReadMsgId(
+    """UserId"""
+    userId: String!
+
+    """channelId"""
+    channelId: String!
+
+    """lastReadMsgId"""
+    lastReadMsgId: String!
+  ): Boolean!
+  createChannel(createChannelInput: CreateChannelInput!): Channel!
+  removeChannel(id: String!): Channel!
+  sendMessage(sendMessageInput: SendMessageInput!): Boolean!
+  updateMessage(updateMessageInput: UpdateMessageInput!): Message!
+  removeMessage(id: Int!): Message!
+}
+
+input UserLoginInput {
+  """userName"""
+  userName: String!
+}
+
+input CreateChannelInput {
+  """name"""
+  name: String!
+}
+
+input SendMessageInput {
+  channelId: String!
+
+  """发送者Id"""
+  from: String!
+
+  """提及用户Id列表"""
+  mentionUserIdList: [String!]
+
+  """回复消息Id """
+  replyMsgId: String
+  type: MsgType!
+  content: MsgContentInput!
+}
+
+input MsgContentInput {
+  """文本内容"""
+  text: String
+
+  """图片链接"""
+  imgUrl: String
+
+  """文件链接"""
+  file: String
+}
+
+input UpdateMessageInput {
+  channelId: String
+
+  """发送者Id"""
+  from: String
+
+  """提及用户Id列表"""
+  mentionUserIdList: [String!]
+
+  """回复消息Id """
+  replyMsgId: String
+  type: MsgType
+  content: MsgContentInput
+  id: Int!
+}
